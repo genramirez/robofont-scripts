@@ -1,0 +1,30 @@
+'''copies foreground to a new layer with the current fontname and changes font style name with a current date suffix'''
+
+from time import gmtime, strftime
+
+
+date = strftime("%m%d%C", gmtime())
+
+f = CurrentFont()
+fontName = '%s-%s' % (f.info.familyName, f.info.styleName)
+fontStyle = f.info.styleName
+layerName = fontName
+
+for g in f:
+    g.copyToLayer(layerName)
+    g.decompose()
+
+print f.info.familyName, f.info.styleName
+
+
+f.info.styleName = date
+
+styleName = f.info.styleName
+styleName = styleName.split(" ")[0] + " %s" % (date)
+f.info.versionMajor = 0
+f.info.versionMinor += 1
+
+print styleName, date
+
+
+
