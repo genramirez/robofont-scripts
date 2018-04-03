@@ -1,0 +1,82 @@
+##Character Set Proofer##
+
+from time import gmtime, strftime
+
+datePrint = strftime("%a, %d %b %Y %H:%M", gmtime())
+
+f = CurrentFont()
+
+f.info.openTypeNameDesigner = u"Gen Ramírez"
+
+designerName = f.info.openTypeNameDesigner
+fontName = '%s-%s' % (f.info.familyName, f.info.styleName)
+
+#projectName = openTypeNameDesigner
+
+#PageHeader
+def pageHeader():
+    fontSize = 10
+    lineheight = fontSize * 1.5
+    font("Verdana", fontSize)
+    
+    text("Project: "+ fontName, (margin, height() - margin))
+    text("Designer: "+ designerName, (margin, height() - margin - lineheight))
+    text("Date: "+ datePrint, (width() / 2 - margin, height() - margin))
+    text("Designer: "+ designerName, (margin, height() - margin - lineheight))
+
+
+# main variables
+boxHeight = 140
+boxPaddingX = 10
+boxPaddingY = 20
+margin = 60
+
+# calculate scale
+s = float(boxHeight) / f.info.unitsPerEm
+
+# define page size
+size('A3Landscape')
+pageWidth, pageHeight = width(), height()
+pageHeader()
+
+
+
+# calculate initial positions
+x = margin
+y = pageHeight - margin - boxHeight - 60
+
+# draw glyphs
+xBox, yBox = x, y
+for i, glyphName in enumerate(f.glyphOrder):
+
+    g = f[glyphName]
+    boxWidth = g.width*s
+
+    # jump to next line
+    if xBox + boxWidth >= pageWidth - margin:
+        xBox = x
+        yBox -= boxHeight + boxPaddingY
+        # jump to next page
+        if yBox < margin:
+            yBox = y
+            newPage(pageWidth, pageHeight)
+            pageHeader()
+
+    # draw glyph cell
+    #stroke(1, 0, 0)
+    fill(None)
+    rect(xBox, yBox, boxWidth, boxHeight)
+
+    # draw glyph
+    xGlyph = xBox
+    yGlyph = yBox - f.info.descender*s
+    save()
+    translate(xGlyph, yGlyph)
+    fill(0)
+    stroke(None)
+    scale(s)
+    drawGlyph(g)
+    restore()
+
+    # move to next glyph
+    xBox += boxWidth + boxPaddingX
